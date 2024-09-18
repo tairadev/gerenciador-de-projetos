@@ -1,10 +1,10 @@
 <template>
   <nav class="app-menubar">
-    <router-link to="/">
-      <img src="/logo.svg" class="app-logo" alt="Gerenciador de Projetos" />
+    <router-link to="/" title="Gerenciador de Projetos">
+      <img src="/logo.svg" class="app-logo" alt="Gerenciador de Projetos" title="Gerenciador de Projetos" />
     </router-link>
-    <router-link class="app-search-link" to="/busca">
-      <img src="../assets/icons/search.svg" class="app-search" alt="Pesquisar" />
+    <router-link class="app-search-link" to="/busca" title="Pesquisar">
+      <img src="../assets/icons/search.svg" class="app-search" alt="Pesquisar" title="Pesquisar" />
     </router-link>
   </nav>
 </template>

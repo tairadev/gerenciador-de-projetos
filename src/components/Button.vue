@@ -1,6 +1,6 @@
 <template>
-  <router-link :to="link" class="button-base" v-if="link">
-    <img v-if="icon" :src="`/${icon}.svg`" :alt="icon" />
+  <router-link :to="link" class="button-base" :title="content" v-if="link">
+    <img v-if="icon" :src="`/${icon}.svg`" :alt="icon" :title="content" />
     {{ content }}
   </router-link>
   <button
@@ -9,7 +9,7 @@
     class="button-base"
     :disabled="disabled || !clickFunction"
   >
-    <img v-if="icon" :src="`/${icon}.svg`" :alt="icon" />
+    <img v-if="icon" :src="`/${icon}.svg`" :alt="icon" :title="content" />
     {{ content }}
   </button>
 </template>

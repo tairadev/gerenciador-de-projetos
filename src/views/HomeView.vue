@@ -67,7 +67,7 @@ function applyFilters(projects: Project[]) {
       const dateA = new Date(a.created).getTime();
       const dateB = new Date(b.created).getTime();
 
-      return dateB - dateA; // Ordenar do mais recente para o mais antigo
+      return dateB - dateA;
     });
   }
   else newProjects = newProjects.sort((a, b) => a.name.localeCompare(b.name));

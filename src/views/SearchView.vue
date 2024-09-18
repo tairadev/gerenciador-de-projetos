@@ -1,6 +1,18 @@
 <template>
   <div class="app-search">
-    <input type="text" name="search" id="search" v-model="searchText" @keyup="handleKeyUp" @focus="handleFocus(true)" @blur="handleFocus(false)" placeholder="Digite o nome do projeto..." :class="{ active: isFocused }">
+    <input
+      type="text"
+      name="search"
+      id="search"
+      v-model="searchText"
+      @keyup="handleKeyUp"
+      @focus="handleFocus(true)"
+      @blur="handleFocus(false)"
+      placeholder="Digite o nome do projeto..."
+      :class="{ active: isFocused }"
+      autocomplete="off"
+    >
+
     <ul class="history-list" :class="{ active: isFocused }" v-if="historyItems.length > 0">
       <li v-for="(item, i) in historyItems" :key="i">
         <div @click="setItem(item)">
@@ -11,15 +23,26 @@
         </div>
       </li>
     </ul>
+
     <router-link to="/">
-      <img src="../assets/icons/back.svg" alt="">
+      <img src="../assets/icons/back.svg" alt="Voltar">
       Voltar
     </router-link>
+
     <h1>Resultado da busca</h1>
     <div class="app-projects-list">
-      <ProjectCard v-for="(project, i) in filteredProjects" :key="i" :project="project" :id="project.id" :search-text="searchText" />
+      <ProjectCard
+        v-for="(project, i) in filteredProjects"
+        :key="i"
+        :project="project"
+        :id="project.id"
+        :search-text="searchText"
+      />
+
       <p class="error-message" v-if="filteredProjects.length === 0">
-        {{ searchText.length < 3 ? 'Digite ao menos 3 caracteres para pesquisar.' : 'Nenhum projeto foi encontrado!' }}
+        {{ searchText.length < 3
+          ? 'Digite ao menos 3 caracteres para pesquisar.'
+          : 'Nenhum projeto foi encontrado!' }}
       </p>
     </div>
   </div>
@@ -31,29 +54,31 @@ import { debounce } from 'lodash';
 import ProjectCard from '../components/ProjectCard.vue';
 import { Project } from '../interfaces/project';
 
-const savedProjects = window.localStorage.getItem('projects');
-const projects = ref(savedProjects ? JSON.parse(savedProjects) : []);
+const projects = ref<Project[]>(getSavedProjects());
 const searchText = ref('');
 const filteredProjects = ref<Project[]>([]);
 const isFocused = ref(false);
+const historyItems = ref(getHistory().reverse());
 
-const historyString = window.localStorage.getItem('history');
-const historyArray = historyString ? JSON.parse(historyString) : [];
-const historyItems = ref(Array.isArray(historyArray) ? historyArray.reverse() : []);
+function getSavedProjects(): Project[] {
+  const savedProjects = window.localStorage.getItem('projects');
+  return savedProjects ? JSON.parse(savedProjects) : [];
+}
+
+function getHistory(): string[] {
+  const historyString = window.localStorage.getItem('history');
+  return historyString ? JSON.parse(historyString) : [];
+}
 
 function setItem(item: string) {
   searchText.value = item;
-
   const searchInput = document.querySelector('#search') as HTMLInputElement | null;
   if (searchInput) searchInput.blur();
-
   handleSearch();
 }
 
 function removeItem(item: string) {
-  const historyString = window.localStorage.getItem('history');
-  const history = historyString ? JSON.parse(historyString) : [];
-  const newHistory = history.filter((arrItem: string) => arrItem !== item);
+  const newHistory = getHistory().filter((arrItem: string) => arrItem !== item);
   window.localStorage.setItem('history', JSON.stringify(newHistory));
   isFocused.value = true;
   historyItems.value = newHistory;
@@ -61,30 +86,27 @@ function removeItem(item: string) {
 
 function handleFocus(focus: boolean) {
   setTimeout(() => isFocused.value = focus, 100);
-};
+}
 
 function handleSearch() {
   if (searchText.value.length >= 3) {
-    const historyString = window.localStorage.getItem('history');
-    const history = historyString ? JSON.parse(historyString) : [];
     const search = searchText.value.toLowerCase();
+    filteredProjects.value = projects.value.filter((project: Project) =>
+      project.name.toLowerCase().includes(search)
+    );
 
-    filteredProjects.value = projects.value.filter((project: { name: string }) => {
-      return project.name.toLowerCase().includes(search)
-    });
-
-    if (history && !history.includes(searchText.value)) {
+    const history = getHistory();
+    if (!history.includes(searchText.value)) {
       if (history.length >= 5) history.shift();
       history.push(searchText.value);
+      window.localStorage.setItem('history', JSON.stringify(history));
     }
 
-    window.localStorage.setItem('history', JSON.stringify(history));
-
-    historyItems.value = historyString ? JSON.parse(historyString).reverse() : [];
+    historyItems.value = history.reverse();
   } else {
     filteredProjects.value = [];
   }
-};
+}
 
 const handleDebounceSearch = debounce(handleSearch, 500);
 
@@ -99,18 +121,16 @@ const handleKeyUp = (event: KeyboardEvent) => {
 function checkMessages(event: MessageEvent) {
   if (event.data.action === 'updateProjects') {
     const savedProjects = window.localStorage.getItem('projects');
-
     if (savedProjects) {
       try {
         projects.value = JSON.parse(savedProjects);
+        handleSearch();
       } catch (error) {
         console.error("Erro ao processar os projetos salvos:", error);
       }
     } else {
       console.warn("Nenhum projeto salvo encontrado no localStorage.");
     }
-
-    handleSearch();
   }
 }
 
