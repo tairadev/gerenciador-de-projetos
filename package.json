@@ -1,0 +1,27 @@
+{
+  "name": "gerenciador-de-projetos",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "lodash": "^4.17.21",
+    "multer": "^1.4.5-lts.1",
+    "sass": "^1.78.0",
+    "v-mask": "^2.3.0",
+    "vue": "^3.4.37",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.7",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1",
+    "vue-tsc": "^2.0.29"
+  }
+}
