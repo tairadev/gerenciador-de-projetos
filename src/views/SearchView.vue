@@ -53,22 +53,13 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { debounce } from 'lodash';
 import ProjectCard from '../components/ProjectCard.vue';
 import { Project } from '../interfaces/project';
+import { getHistory, getProjects, setHistory } from '../helpers/LocalStorageHelper';
 
-const projects = ref<Project[]>(getSavedProjects());
+const projects = ref<Project[]>(getProjects());
 const searchText = ref('');
 const filteredProjects = ref<Project[]>([]);
 const isFocused = ref(false);
 const historyItems = ref(getHistory().reverse());
-
-function getSavedProjects(): Project[] {
-  const savedProjects = window.localStorage.getItem('projects');
-  return savedProjects ? JSON.parse(savedProjects) : [];
-}
-
-function getHistory(): string[] {
-  const historyString = window.localStorage.getItem('history');
-  return historyString ? JSON.parse(historyString) : [];
-}
 
 function setItem(item: string) {
   searchText.value = item;
@@ -79,7 +70,7 @@ function setItem(item: string) {
 
 function removeItem(item: string) {
   const newHistory = getHistory().filter((arrItem: string) => arrItem !== item);
-  window.localStorage.setItem('history', JSON.stringify(newHistory));
+  setHistory(newHistory);
   isFocused.value = true;
   historyItems.value = newHistory;
 }
@@ -99,7 +90,7 @@ function handleSearch() {
     if (!history.includes(searchText.value)) {
       if (history.length >= 5) history.shift();
       history.push(searchText.value);
-      window.localStorage.setItem('history', JSON.stringify(history));
+      setHistory(history);
     }
 
     historyItems.value = history.reverse();
@@ -113,6 +104,8 @@ const handleDebounceSearch = debounce(handleSearch, 500);
 const handleKeyUp = (event: KeyboardEvent) => {
   if (event.key === 'Enter') {
     handleSearch();
+    const searchInput = document.querySelector('#search') as HTMLInputElement | null;
+    if (searchInput) searchInput.blur();
   } else {
     handleDebounceSearch();
   }
@@ -120,16 +113,11 @@ const handleKeyUp = (event: KeyboardEvent) => {
 
 function checkMessages(event: MessageEvent) {
   if (event.data.action === 'updateProjects') {
-    const savedProjects = window.localStorage.getItem('projects');
-    if (savedProjects) {
-      try {
-        projects.value = JSON.parse(savedProjects);
-        handleSearch();
-      } catch (error) {
-        console.error("Erro ao processar os projetos salvos:", error);
-      }
-    } else {
-      console.warn("Nenhum projeto salvo encontrado no localStorage.");
+    try {
+      projects.value = getProjects();
+      handleSearch();
+    } catch (error) {
+      console.error("Erro ao processar os projetos salvos:", error);
     }
   }
 }

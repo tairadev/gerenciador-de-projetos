@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { Project } from '../interfaces/project';
 import Button from './Button.vue';
+import { getProjects, setProjects } from '../helpers/LocalStorageHelper';
 
 interface Props {
   project: Project;
@@ -25,22 +26,17 @@ interface Props {
 const props = defineProps<Props>();
 
 const removeProject = () => {
-  const savedProjects = localStorage.getItem('projects');
-  if (savedProjects) {
-    try {
-      const savedProjectsArray = JSON.parse(savedProjects) as Project[];
-      const index = savedProjectsArray.findIndex(project => project.id === props.id);
-      if (index > -1) {
-        savedProjectsArray.splice(index, 1);
-        localStorage.setItem('projects', JSON.stringify(savedProjectsArray));
-        window.postMessage({ action: 'updateProjects' }, '*');
-        props.closeModal();
-      }
-    } catch (error) {
-      console.error("Erro ao processar os projetos salvos:", error);
+  try {
+    const savedProjectsArray = getProjects() as Project[];
+    const index = savedProjectsArray.findIndex(project => project.id === props.id);
+    if (index > -1) {
+      savedProjectsArray.splice(index, 1);
+      setProjects(savedProjectsArray);
+      window.postMessage({ action: 'updateProjects' }, '*');
+      props.closeModal();
     }
-  } else {
-    console.warn("Nenhum projeto salvo encontrado no localStorage.");
+  } catch (error) {
+    console.error("Erro ao processar os projetos salvos:", error);
   }
 };
 </script>

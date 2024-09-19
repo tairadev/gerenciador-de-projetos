@@ -76,6 +76,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { isValidDate } from '../helpers/StringHelper';
 import Button from '../components/Button.vue';
 import { Project } from '../interfaces/project';
+import { getProjects, setProjects } from '../helpers/LocalStorageHelper';
 
 const router = useRouter();
 const route = useRoute();
@@ -126,27 +127,24 @@ function parseDate(dateString: string) {
 
 function saveProject() {
   try {
-    const savedProjects = window.localStorage.getItem('projects');
     let projects = [formData.value];
-    if (savedProjects) {
-      const savedProjectsArray = JSON.parse(savedProjects);
-      if (isEditing.value) {
-        const id = route.params.id;
-        const index = savedProjectsArray.findIndex((item: Project) => item.id === id);
-        savedProjectsArray[index] = {
-          ...formData.value,
-          thumbnail: changedThumbnail.value ? formData.value.thumbnail : imagePreview.value,
-        };
-      } else {
-        savedProjectsArray.push({
-          ...formData.value,
-          created: new Date(),
-        });
-      }
-      projects = savedProjectsArray;
+    const savedProjectsArray = getProjects();
+    if (isEditing.value) {
+      const id = route.params.id;
+      const index = savedProjectsArray.findIndex((item: Project) => item.id === id);
+      savedProjectsArray[index] = {
+        ...formData.value,
+        thumbnail: changedThumbnail.value ? formData.value.thumbnail : imagePreview.value,
+      };
+    } else {
+      savedProjectsArray.push({
+        ...formData.value,
+        created: new Date(),
+      });
     }
+    projects = savedProjectsArray;
 
-    window.localStorage.setItem('projects', JSON.stringify(projects));
+    setProjects(projects);
     router.push('/')
     clearFormData();
   } catch (error) {
@@ -235,30 +233,23 @@ function generateRandomKey() {
 }
 
 onMounted(() => {
-  const savedProjects = window.localStorage.getItem('projects');
-  if (savedProjects) {
-    try {
-      const savedProjectsArray: any[] = JSON.parse(savedProjects);
-      const id = route.params.id;
-      const project = savedProjectsArray.find((item: Project) => item.id === id);
-      
-      if (project) {
-        formData.value = project;
-        if (formData.value.thumbnail) imagePreview.value = formData.value.thumbnail;
-        changedFormData.value = {
-          name: true,
-          client: true,
-          initialDate: true,
-          finalDate: true,
-        };
-      } else {
-        console.warn("Projeto não encontrado.");
-      }
-    } catch (error) {
-      console.error("Erro ao processar os projetos salvos:", error);
+  try {
+    const savedProjectsArray = getProjects();
+    const id = route.params.id;
+    const project = savedProjectsArray.find((item: Project) => item.id === id);
+    
+    if (project) {
+      formData.value = project;
+      if (formData.value.thumbnail) imagePreview.value = formData.value.thumbnail;
+      changedFormData.value = {
+        name: true,
+        client: true,
+        initialDate: true,
+        finalDate: true,
+      };
     }
-  } else {
-    console.warn("Nenhum projeto salvo encontrado no localStorage.");
+  } catch (error) {
+    console.error("Erro ao processar os projetos salvos:", error);
   }
 });
 

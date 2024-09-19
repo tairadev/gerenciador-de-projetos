@@ -33,6 +33,7 @@ import { computed, ref } from 'vue';
 import { Project } from '../interfaces/project';
 import RemoveModal from './RemoveModal.vue';
 import { useRouter } from 'vue-router';
+import { getProjects, setProjects } from '../helpers/LocalStorageHelper';
 
 interface Props {
   project: Project;
@@ -73,21 +74,15 @@ function formatDate(dateString: string) {
 }
 
 function toggleFavorite() {
-  const savedProjects = window.localStorage.getItem('projects');
-
-  if (savedProjects) {
-    try {
-      const savedProjectsArray = JSON.parse(savedProjects);
-      const index = savedProjectsArray.findIndex((item: Project) => item.id === props.id);
-      if (savedProjectsArray[index]) {
-        savedProjectsArray[index].favorite = !isFavorite.value;
-        window.localStorage.setItem('projects', JSON.stringify(savedProjectsArray));
-      }
-    } catch (error) {
-      console.error("Erro ao processar os projetos salvos:", error);
+  try {
+    const savedProjectsArray = getProjects();
+    const index = savedProjectsArray.findIndex((item: Project) => item.id === props.id);
+    if (savedProjectsArray[index]) {
+      savedProjectsArray[index].favorite = !isFavorite.value;
+      setProjects(savedProjectsArray);
     }
-  } else {
-    console.warn("Nenhum projeto salvo encontrado no localStorage.");
+  } catch (error) {
+    console.error("Erro ao processar os projetos salvos:", error);
   }
 
   window.postMessage({ action: 'updateProjects' }, '*');

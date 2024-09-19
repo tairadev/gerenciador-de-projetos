@@ -10,38 +10,26 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import NoProjects from '../components/NoProjects.vue';
 import Projects from '../components/Projects.vue';
 import { Project } from '../interfaces/project';
+import { getProjects } from '../helpers/LocalStorageHelper';
 
-const savedProjects = window.localStorage.getItem('projects');
-const projectsLocal = savedProjects ? JSON.parse(savedProjects) : [];
 const filter = ref({ favorite: false, order: 'alphabetical' });
-const projects = ref(applyFilters(projectsLocal));
+const projects = ref(applyFilters(getProjects()));
 
 function checkMessages(event: MessageEvent) {
-  const savedProjects = window.localStorage.getItem('projects');
   if (event.data.action === 'updateProjects') {
-    const savedProjects = window.localStorage.getItem('projects');
-
-    if (savedProjects) {
-      try {
-        projects.value = JSON.parse(savedProjects);
-      } catch (error) {
-        console.error("Erro ao processar os projetos salvos:", error);
-      }
-    } else {
-      console.warn("Nenhum projeto salvo encontrado no localStorage.");
+    try {
+      projects.value = getProjects();
+    } catch (error) {
+      console.error("Erro ao processar os projetos salvos:", error);
     }
   } else if (event.data.action === 'updateFilter') {
     const filterPost = JSON.parse(event.data.filter);
     filter.value = filterPost;
 
-    if (savedProjects) {
-      try {
-        projects.value = applyFilters(JSON.parse(savedProjects));
-      } catch (error) {
-        console.error("Erro ao processar os projetos salvos:", error);
-      }
-    } else {
-      console.warn("Nenhum projeto salvo encontrado no localStorage.");
+    try {
+      projects.value = applyFilters(getProjects());
+    } catch (error) {
+      console.error("Erro ao processar os projetos salvos:", error);
     }
   }
 }
