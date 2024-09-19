@@ -52,10 +52,15 @@ function applyFilters(projects: Project[]) {
     });
   } else if (filter.value.order === 'recent') {
     newProjects = newProjects.sort((a, b) => {
-      const dateA = new Date(a.created).getTime();
-      const dateB = new Date(b.created).getTime();
+      const parseDate = (dateString: string) => {
+        const [day, month, year] = dateString.split('/').map(Number);
+        return new Date(year, month - 1, day);
+      };
 
-      return dateB - dateA;
+      const dateA = parseDate(a.initialDate);
+      const dateB = parseDate(b.initialDate);
+
+      return dateA.getTime() + dateB.getTime();
     });
   }
   else newProjects = newProjects.sort((a, b) => a.name.localeCompare(b.name));

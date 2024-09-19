@@ -18,5 +18,7 @@ export const setHistory = (history: object) => {
 
 export default {
   getProjects,
+  setProjects,
   getHistory,
+  setHistory,
 }
