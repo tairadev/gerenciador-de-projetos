@@ -13,7 +13,7 @@ p<template>
               Nome do projeto <span>(Obrigatório)</span>
             </label>
             <input type="text" name="project-name" id="project-name" @keydown="() => changedFormData.name = true" v-model="formData.name" />
-            <p class="error-message">Por favor, digite ao menos duas palavas</p>
+            <p class="error-message">Por favor, digite ao menos duas palavras</p>
           </div>
         </div>
         <div class="form-row">
@@ -22,7 +22,7 @@ p<template>
               Cliente <span>(Obrigatório)</span>
             </label>
             <input type="text" name="project-client" id="project-client" @keydown="() => changedFormData.client = true" v-model="formData.client" />
-            <p class="error-message">Por favor, digite ao menos uma palava</p>
+            <p class="error-message">Por favor, digite ao menos uma palavra</p>
           </div>
         </div>
         <div class="form-row">
