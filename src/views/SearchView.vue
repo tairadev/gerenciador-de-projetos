@@ -11,16 +11,15 @@
       placeholder="Digite o nome do projeto..."
       :class="{ active: isFocused }"
       autocomplete="off"
+      ref="searchInput"
     >
 
-    <ul class="history-list" :class="{ active: isFocused }" v-if="historyItems.length > 0">
+    <ul class="history-list" v-if="historyItems.length > 0 && isFocused">
       <li v-for="(item, i) in historyItems" :key="i">
-        <div @click="setItem(item)">
+        <div class="text-container" @click="setItem(item)">
           {{ item }}
         </div>
-        <div class="image-container" @click="removeItem(item)">
-          <img src="../assets/icons/close.svg" alt="Excluir">
-        </div>
+        <div class="image-container" @click="removeItem(item)"></div>
       </li>
     </ul>
 
@@ -60,23 +59,23 @@ const searchText = ref('');
 const filteredProjects = ref<Project[]>([]);
 const isFocused = ref(false);
 const historyItems = ref(getHistory().reverse());
+const searchInput = ref<HTMLInputElement | null>(null);
 
 function setItem(item: string) {
   searchText.value = item;
-  const searchInput = document.querySelector('#search') as HTMLInputElement | null;
-  if (searchInput) searchInput.blur();
+  searchInput.value?.blur();
   handleSearch();
 }
 
 function removeItem(item: string) {
   const newHistory = getHistory().filter((arrItem: string) => arrItem !== item);
   setHistory(newHistory);
-  isFocused.value = true;
   historyItems.value = newHistory;
+  searchInput.value?.focus();
 }
 
 function handleFocus(focus: boolean) {
-  setTimeout(() => isFocused.value = focus, 100);
+  setTimeout(() => isFocused.value = focus, 200);
 }
 
 function handleSearch() {
@@ -168,7 +167,6 @@ onUnmounted(() => {
     background-position: 32px center;
     padding: 27px 32px 27px 74px;
     &.active {
-      border-radius: 16px 16px 0 0;
       border: 2px solid #695CCD;
     }
     &:focus {
@@ -185,7 +183,6 @@ onUnmounted(() => {
     }
   }
   .history-list {
-    display: none;
     position: absolute;
     left: 0;
     top: 78px;
@@ -197,31 +194,31 @@ onUnmounted(() => {
     border-radius: 0 0 16px 16px;
     border: 2px solid #695CCD;
     overflow: hidden;
-    &.active {
-      display: block;
-    }
     li {
       position: relative;
-      padding: 17px 22px 17px 56px;
       background-color: #FFF;
-      color: #717171;
-      font-size: 16px;
-      font-weight: 400;
-      line-height: 16px;
       border-top: 1px solid #F4F2FF;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M0.387097 0.516136H0.709677C0.923451 0.516136 1.09677 0.689459 1.09677 0.903233V3.95565C2.49019 1.58217 5.07222 -0.0091859 8.02558 3.9903e-05C12.4252 0.0138141 16.0069 3.6132 16 8.01278C15.9931 12.4252 12.414 16 8 16C5.93787 16 4.058 15.2198 2.63942 13.9385C2.47448 13.7895 2.46671 13.5333 2.62387 13.3761L2.8519 13.1481C2.99716 13.0028 3.2309 12.996 3.38358 13.1334C4.60587 14.2335 6.22371 14.9032 8 14.9032C11.7982 14.9032 14.9032 11.828 14.9032 8C14.9032 4.20181 11.828 1.09678 8 1.09678C5.32703 1.09678 3.00848 2.61539 1.86164 4.83872H5.03226C5.24603 4.83872 5.41935 5.01204 5.41935 5.22581V5.54839C5.41935 5.76217 5.24603 5.93549 5.03226 5.93549H0.387097C0.173322 5.93549 0 5.76217 0 5.54839V0.903233C0 0.689459 0.173322 0.516136 0.387097 0.516136Z' fill='%23717171'/%3E%3Cpath d='M10.7633 10.6849L10.9151 10.4762C11.0409 10.3033 11.0026 10.0612 10.8297 9.93545L8.51663 8.25323V3.48378C8.51663 3.27 8.34331 3.09668 8.12954 3.09668H7.87147C7.6577 3.09668 7.48438 3.27 7.48438 3.48378V8.77884L10.2226 10.7703C10.3955 10.896 10.6376 10.8578 10.7633 10.6849Z' fill='%23717171'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: 22px center;
+      .text-container {
+        padding: 17px 22px 17px 56px;
+        color: #717171;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 16px;
+      }
       .image-container {
+        display: block;
+        width: 30px;
+        height: 30px;
         position: absolute;
         right: 22px;
         top: 50%;
         transform: translateY(-50%);
-        width: 50px;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='21.1754' height='1.45195' transform='matrix(0.707105 0.707108 -0.707105 0.707108 1.02686 0)' fill='%23717171'/%3E%3Crect width='21.1754' height='1.45195' transform='matrix(0.707105 -0.707108 0.707105 0.707108 0 14.9733)' fill='%23717171'/%3E%3C/svg%3E%0A");;
+        background-repeat: no-repeat;
+        background-position: center;
       }
       &:hover {
         background-color: #F4F2FF;

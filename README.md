@@ -3,6 +3,7 @@
 ## Descrição
 
 Projeto de Guilherme Taira referente a um gerenciador de projetos solicitado pela Clicksign, no processo seletivo de Desenvolvedor Frontend Pleno.
+Como requisitado no teste, não foram usadas quaisquer bibliotecas terceiras.
 
 ## Requisitos
 

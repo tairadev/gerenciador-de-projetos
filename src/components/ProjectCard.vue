@@ -17,7 +17,11 @@
       </div>
     </div>
     <div class="project-content">
-      <h2 v-html="highlightText(project.name)"></h2>
+      <h2>
+        <span v-for="(part, index) in highlightedName" :key="index" :class="part.highlight ? 'highlight' : ''">
+          {{ part.text }}
+        </span>
+      </h2>
       <h3>Cliente: <span>{{ project.client }}</span></h3>
       <ul>
         <li>{{ formatDate(project.initialDate) }}</li>
@@ -47,6 +51,8 @@ const router = useRouter();
 const isFavorite = computed(() => props.project.favorite);
 const showModal = ref(false);
 const showRemoveModal = ref(false);
+
+const highlightedName = computed(() => highlightText(props.project.name));
 
 function editProject() {
   router.push(`/editar/${props.id}`);
@@ -92,10 +98,15 @@ function highlightText(name: string) {
   if (props.searchText) {
     const searchText = props.searchText.toLowerCase();
     const regex = new RegExp(`(${searchText})`, 'gi');
-    return name.replace(regex, '<span class="highlight">$1</span>');
+    const parts = name.split(regex).map((part) => ({
+      text: part,
+      highlight: regex.test(part)
+    }));
+
+    return parts;
   }
 
-  return name;
+  return [{ text: name, highlight: false }];
 }
 </script>
 
